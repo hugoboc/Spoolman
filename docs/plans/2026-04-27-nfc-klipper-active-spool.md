@@ -10,6 +10,32 @@
 
 ---
 
+## Progress Tracker
+
+- [ ] **Phase 1: Configuration and Moonraker Client**
+  - [ ] Task 1: Register Moonraker and NFC settings
+  - [ ] Task 2: Add Moonraker client helper
+- [ ] **Phase 2: NFC Box Data Layer**
+  - [ ] Task 3: Add NFC box database model and migration
+  - [ ] Task 4: Add NFC box database helpers
+  - [ ] Task 5: Add NFC box response models
+- [ ] **Phase 3: Backend API**
+  - [ ] Task 6: Add NFC box management API
+  - [ ] Task 7: Add NFC scan and action API
+- [ ] **Phase 4: Settings and Management UI**
+  - [ ] Task 8: Add settings UI fields
+  - [ ] Task 9: Add NFC boxes management page
+- [ ] **Phase 5: Scan UI**
+  - [ ] Task 10: Add NFC box scan page
+- [ ] **Phase 6: Verification**
+  - [ ] Task 11: Final verification
+
+---
+
+## Phase 1: Configuration and Moonraker Client
+
+**Goal:** Add the global settings and low-level Moonraker integration needed before any NFC box workflow can activate a printer spool.
+
 ### Task 1: Register Moonraker and NFC Settings
 
 **Files:**
@@ -237,6 +263,10 @@ Expected: PASS.
 git add spoolman/moonraker.py tests/test_moonraker.py
 git commit -m "feat: add moonraker active spool client"
 ```
+
+## Phase 2: NFC Box Data Layer
+
+**Goal:** Add the persistent NFC box entity and backend data helpers before exposing routes or UI.
 
 ### Task 3: Add NFC Box Database Model and Migration
 
@@ -519,6 +549,10 @@ Expected: PASS.
 git add spoolman/api/v1/models.py
 git commit -m "feat: add nfc box api model"
 ```
+
+## Phase 3: Backend API
+
+**Goal:** Expose NFC box management plus scan-time assign, clear, and activate actions through tested API routes.
 
 ### Task 6: Add NFC Box Management API
 
@@ -863,6 +897,10 @@ git add spoolman/api/v1/nfc.py spoolman/api/v1/router.py tests_integration/tests
 git commit -m "feat: add nfc box scan actions"
 ```
 
+## Phase 4: Settings and Management UI
+
+**Goal:** Surface Moonraker/NFC configuration and provide an admin page for creating boxes and copying their NFC URLs.
+
 ### Task 8: Add Settings UI Fields
 
 **Files:**
@@ -1043,6 +1081,10 @@ git add client/src/App.tsx client/src/pages/nfcBoxes client/public/locales/en/co
 git commit -m "feat: add nfc box management page"
 ```
 
+## Phase 5: Scan UI
+
+**Goal:** Build the NFC tag destination page used during the physical scan workflow.
+
 ### Task 10: Add NFC Box Scan Page
 
 **Files:**
@@ -1104,6 +1146,10 @@ Expected: PASS.
 git add client/src/App.tsx client/src/pages/nfcBoxScan client/public/locales/en/common.json
 git commit -m "feat: add nfc box scan page"
 ```
+
+## Phase 6: Verification
+
+**Goal:** Run backend, frontend, and manual printer-flow checks after all feature slices are complete.
 
 ### Task 11: Final Verification
 
