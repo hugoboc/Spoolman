@@ -41,3 +41,20 @@ def test_get_all():
         "is_set": False,
         "type": "string",
     }
+
+
+def test_get_nfc_moonraker_settings_defaults():
+    """Test getting NFC/Moonraker settings defaults."""
+    expectations = {
+        "moonraker_url": ('""', "string"),
+        "moonraker_api_key": ('""', "string"),
+        "nfc_box_sync_location": ("true", "boolean"),
+    }
+
+    for key, (expected_value, expected_type) in expectations.items():
+        result = httpx.get(f"{URL}/api/v1/setting/{key}")
+        result.raise_for_status()
+        body = result.json()
+        assert body["value"] == expected_value
+        assert body["is_set"] is False
+        assert body["type"] == expected_type

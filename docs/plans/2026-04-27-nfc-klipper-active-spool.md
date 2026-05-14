@@ -12,9 +12,9 @@
 
 ## Progress Tracker
 
-- [ ] **Phase 1: Configuration and Moonraker Client**
-  - [ ] Task 1: Register Moonraker and NFC settings
-  - [ ] Task 2: Add Moonraker client helper
+- [x] **Phase 1: Configuration and Moonraker Client**
+  - [x] Task 1: Register Moonraker and NFC settings
+  - [x] Task 2: Add Moonraker client helper
 - [ ] **Phase 2: NFC Box Data Layer**
   - [ ] Task 3: Add NFC box database model and migration
   - [ ] Task 4: Add NFC box database helpers
