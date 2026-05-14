@@ -83,6 +83,18 @@ class Spool(Base):
     )
 
 
+class NfcBox(Base):
+    __tablename__ = "nfc_box"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    registered: Mapped[datetime] = mapped_column()
+    token: Mapped[str] = mapped_column(String(36), unique=True, index=True)
+    name: Mapped[str] = mapped_column(String(64), unique=True)
+    spool_id: Mapped[int | None] = mapped_column(ForeignKey("spool.id"), unique=True)
+    spool: Mapped[Optional["Spool"]] = relationship()
+    comment: Mapped[str | None] = mapped_column(String(1024))
+
+
 class Setting(Base):
     __tablename__ = "setting"
 

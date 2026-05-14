@@ -360,6 +360,27 @@ class Spool(BaseModel):
         )
 
 
+class NfcBox(BaseModel):
+    id: int = Field(description="Unique internal ID of this NFC box.")
+    registered: SpoolmanDateTime = Field(description="When the NFC box was registered. UTC Timezone.")
+    token: str = Field(description="Server-generated token used in NFC URLs.")
+    name: str = Field(max_length=64, description="User-facing box name.")
+    spool: Spool | None = Field(None, description="The spool currently assigned to this box.")
+    comment: str | None = Field(None, max_length=1024, description="Free text comment about this box.")
+
+    @staticmethod
+    def from_db(item: models.NfcBox) -> "NfcBox":
+        """Create a Pydantic NFC box object from a database object."""
+        return NfcBox(
+            id=item.id,
+            registered=item.registered,
+            token=item.token,
+            name=item.name,
+            spool=Spool.from_db(item.spool) if item.spool is not None else None,
+            comment=item.comment,
+        )
+
+
 class Info(BaseModel):
     version: str = Field(examples=["0.7.0"])
     debug_mode: bool = Field(examples=[False])

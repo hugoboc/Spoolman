@@ -15,10 +15,10 @@
 - [x] **Phase 1: Configuration and Moonraker Client**
   - [x] Task 1: Register Moonraker and NFC settings
   - [x] Task 2: Add Moonraker client helper
-- [ ] **Phase 2: NFC Box Data Layer**
-  - [ ] Task 3: Add NFC box database model and migration
-  - [ ] Task 4: Add NFC box database helpers
-  - [ ] Task 5: Add NFC box response models
+- [x] **Phase 2: NFC Box Data Layer**
+  - [x] Task 3: Add NFC box database model and migration
+  - [x] Task 4: Add NFC box database helpers
+  - [x] Task 5: Add NFC box response models
 - [ ] **Phase 3: Backend API**
   - [ ] Task 6: Add NFC box management API
   - [ ] Task 7: Add NFC scan and action API
