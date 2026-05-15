@@ -27,8 +27,8 @@
   - [x] Task 9: Add NFC boxes management page
 - [x] **Phase 5: Scan UI**
   - [x] Task 10: Add NFC box scan page
-- [ ] **Phase 6: Verification**
-  - [ ] Task 11: Final verification
+- [x] **Phase 6: Verification**
+  - [x] Task 11: Final verification
 
 ---
 
