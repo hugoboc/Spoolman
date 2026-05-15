@@ -46,7 +46,7 @@ RUN npm install --legacy-peer-deps
 
 COPY client ./
 
-ENV VITE_APIURL=/api
+ENV VITE_APIURL=/api/v1
 RUN npm run build
 ```
 
@@ -427,7 +427,7 @@ Cause: frontend was built without `VITE_APIURL`.
 Fix: Dockerfile client stage must include:
 
 ```dockerfile
-ENV VITE_APIURL=/api
+ENV VITE_APIURL=/api/v1
 RUN npm run build
 ```
 

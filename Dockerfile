@@ -7,7 +7,7 @@ RUN npm install --legacy-peer-deps
 
 COPY client ./
 
-ENV VITE_APIURL=/api
+ENV VITE_APIURL=/api/v1
 RUN npm run build
 
 
