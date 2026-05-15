@@ -325,15 +325,15 @@
             },
             "moonraker_url": {
                 "label": "Moonraker URL",
-                "tooltip": "Base URL for the Klipper/Moonraker printer used by NFC box activation."
+                "tooltip": "Base URL for the Klipper/Moonraker printer used by dry box activation."
             },
             "moonraker_api_key": {
                 "label": "Moonraker API key",
                 "tooltip": "Optional API key sent to Moonraker when setting the active spool."
             },
             "nfc_box_sync_location": {
-                "label": "Sync NFC box assignments to spool locations",
-                "tooltip": "When enabled, assigning a spool to an NFC box also sets the spool location to the box name."
+                "label": "Sync dry box to spool location",
+                "tooltip": "When enabled, assigning a spool to a dry box also sets the spool location to the box name."
             }
         },
         "extra_fields": {
