@@ -18,22 +18,27 @@ You need two terminals running simultaneously.
 wsl
 cd /mnt/d/00_Coding_Projects/Spoolman
 source .venv/bin/activate
-SPOOLMAN_CORS_ORIGIN=http://localhost:5173 uvicorn spoolman.main:app --reload
+SPOOLMAN_CORS_ORIGIN=http://localhost:5173,http://192.168.0.x:5173 uvicorn spoolman.main:app --host 0.0.0.0 --reload
 ```
 
-- API available at `http://localhost:8000`
+- Replace `192.168.0.x` with your actual LAN IP (run `ipconfig` in PowerShell to find it)
+- API available directly at `http://localhost:8000`
+- `--host 0.0.0.0` binds to all network interfaces so phones/devices on the LAN can reach it
 - Auto-reloads on Python file changes
-- `SPOOLMAN_CORS_ORIGIN` allows the Vite dev server to call the API
 
 ### Terminal 2 — Frontend (run in PowerShell)
 
 ```powershell
 cd d:\00_Coding_Projects\Spoolman\client
-$env:VITE_APIURL = "http://localhost:8000/api/v1"
-npm run dev
+$env:VITE_APIURL = "/api/v1"
+$env:VITE_DEV_API_TARGET = "http://127.0.0.1:8000"
+npm run dev -- --host 0.0.0.0
 ```
 
-- UI available at `http://localhost:5173`
+- Replace `192.168.0.x` with your actual LAN IP
+- UI available at `http://192.168.0.x:5173` from any device on the LAN
+- Browser API calls go to the Vite dev server at `/api/v1`, which proxies them to the WSL backend at `http://127.0.0.1:8000`
+- `--host 0.0.0.0` exposes the Vite dev server on all interfaces
 - Hot-reloads on TypeScript/CSS file changes
 
 ---

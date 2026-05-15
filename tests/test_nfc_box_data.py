@@ -102,3 +102,17 @@ async def test_nfc_box_response_model_includes_assigned_spool(db_session: AsyncS
     assert response.token == box.token
     assert response.spool is not None
     assert response.spool.id == spool.id
+
+
+@pytest.mark.asyncio
+async def test_find_nfc_boxes_can_serialize_assigned_spools(db_session: AsyncSession):
+    box = await nfc_box.create(db=db_session, name="Box 01")
+    spool = await create_spool(db_session)
+    await nfc_box.assign_spool(db=db_session, box=box, spool=spool, sync_location=False)
+
+    found_boxes = await nfc_box.find(db_session)
+    response = NfcBoxResponse.from_db(found_boxes[0])
+
+    assert response.id == box.id
+    assert response.spool is not None
+    assert response.spool.id == spool.id

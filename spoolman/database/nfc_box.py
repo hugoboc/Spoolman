@@ -58,7 +58,13 @@ async def get_by_token(db: AsyncSession, token: str) -> models.NfcBox:
 async def find(db: AsyncSession) -> list[models.NfcBox]:
     """Find all NFC boxes."""
     rows = await db.execute(
-        sqlalchemy.select(models.NfcBox).order_by(models.NfcBox.name).options(joinedload(models.NfcBox.spool)),
+        sqlalchemy.select(models.NfcBox)
+        .order_by(models.NfcBox.name)
+        .options(
+            joinedload(models.NfcBox.spool)
+            .joinedload(models.Spool.filament)
+            .joinedload(models.Filament.vendor),
+        ),
     )
     return list(rows.unique().scalars().all())
 
