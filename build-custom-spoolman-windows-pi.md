@@ -56,7 +56,7 @@ Important details:
 
 - `node:20-bookworm-slim` is used because the client declares Node 20.
 - `npm install --legacy-peer-deps` is used because `npm ci` failed due to `package.json` and `package-lock.json` being out of sync.
-- `ENV VITE_APIURL=/api` is required, otherwise the browser shows:
+- `ENV VITE_APIURL=/api/v1` is required, otherwise the browser shows:
 
 ```text
 Missing API URL

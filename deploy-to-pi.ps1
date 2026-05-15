@@ -70,6 +70,7 @@ echo '--- Logs (last 30 lines) ---'
 docker logs spoolman --tail=30
 echo '--- Done ---'
 "@
+$remoteCmd = $remoteCmd -replace "`r`n", "`n"
 ssh "${PiUser}@${PiHost}" $remoteCmd
 if ($LASTEXITCODE -ne 0) { throw "SSH remote commands failed (exit $LASTEXITCODE)" }
 Write-Host "      Done." -ForegroundColor Green
