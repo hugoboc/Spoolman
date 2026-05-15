@@ -11,6 +11,7 @@ import {
   HomeOutlined,
   QuestionOutlined,
   TableOutlined,
+  TagsOutlined,
   ToolOutlined,
   UserOutlined,
 } from "@ant-design/icons";
@@ -151,6 +152,14 @@ function App() {
                   },
                 },
                 {
+                  name: "nfc-box",
+                  list: "/nfc-box",
+                  meta: {
+                    canDelete: true,
+                    icon: <TagsOutlined />,
+                  },
+                },
+                {
                   name: "settings",
                   list: "/settings",
                   meta: {
@@ -225,6 +234,7 @@ function App() {
                   <Route path="/settings/*" element={<LoadablePage name="settings" />} />
                   <Route path="/help" element={<LoadablePage name="help" />} />
                   <Route path="/locations" element={<LoadablePage name="locations" />} />
+                  <Route path="/nfc-box" element={<LoadablePage name="nfcBoxes" />} />
                   <Route path="*" element={<ErrorComponent />} />
                 </Route>
               </Routes>

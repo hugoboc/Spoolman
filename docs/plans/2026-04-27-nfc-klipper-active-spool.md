@@ -22,9 +22,9 @@
 - [x] **Phase 3: Backend API**
   - [x] Task 6: Add NFC box management API
   - [x] Task 7: Add NFC scan and action API
-- [ ] **Phase 4: Settings and Management UI**
-  - [ ] Task 8: Add settings UI fields
-  - [ ] Task 9: Add NFC boxes management page
+- [x] **Phase 4: Settings and Management UI**
+  - [x] Task 8: Add settings UI fields
+  - [x] Task 9: Add NFC boxes management page
 - [ ] **Phase 5: Scan UI**
   - [ ] Task 10: Add NFC box scan page
 - [ ] **Phase 6: Verification**

@@ -8,6 +8,9 @@ export function GeneralSettings() {
   const setBaseUrl = useSetSetting("base_url");
   const setCurrency = useSetSetting("currency");
   const setRoundPrices = useSetSetting("round_prices");
+  const setMoonrakerUrl = useSetSetting("moonraker_url");
+  const setMoonrakerApiKey = useSetSetting("moonraker_api_key");
+  const setNfcBoxSyncLocation = useSetSetting("nfc_box_sync_location");
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
   const t = useTranslate();
@@ -19,6 +22,11 @@ export function GeneralSettings() {
         currency: JSON.parse(settings.data.currency.value),
         base_url: JSON.parse(settings.data.base_url.value),
         round_prices: JSON.parse(settings.data.round_prices.value),
+        moonraker_url: settings.data.moonraker_url ? JSON.parse(settings.data.moonraker_url.value) : "",
+        moonraker_api_key: settings.data.moonraker_api_key ? JSON.parse(settings.data.moonraker_api_key.value) : "",
+        nfc_box_sync_location: settings.data.nfc_box_sync_location
+          ? JSON.parse(settings.data.nfc_box_sync_location.value)
+          : true,
       });
     }
   }, [settings.data, form]);
@@ -31,7 +39,14 @@ export function GeneralSettings() {
   }, [setCurrency.isSuccess, messageApi, t]);
 
   // Handle form submit
-  const onFinish = (values: { currency: string; base_url: string; round_prices: boolean }) => {
+  const onFinish = (values: {
+    currency: string;
+    base_url: string;
+    round_prices: boolean;
+    moonraker_url: string;
+    moonraker_api_key: string;
+    nfc_box_sync_location: boolean;
+  }) => {
     // Check if the currency has changed
     if (settings.data?.currency.value !== JSON.stringify(values.currency)) {
       setCurrency.mutate(values.currency);
@@ -44,6 +59,21 @@ export function GeneralSettings() {
     // Check if the setting to round prices has changed
     if (settings.data?.round_prices.value !== JSON.stringify(values.round_prices)) {
       setRoundPrices.mutate(values.round_prices);
+    }
+
+    // Check if the moonraker URL has changed
+    if (settings.data?.moonraker_url?.value !== JSON.stringify(values.moonraker_url)) {
+      setMoonrakerUrl.mutate(values.moonraker_url);
+    }
+
+    // Check if the moonraker API key has changed
+    if (settings.data?.moonraker_api_key?.value !== JSON.stringify(values.moonraker_api_key)) {
+      setMoonrakerApiKey.mutate(values.moonraker_api_key);
+    }
+
+    // Check if the NFC box sync location setting has changed
+    if (settings.data?.nfc_box_sync_location?.value !== JSON.stringify(values.nfc_box_sync_location)) {
+      setNfcBoxSyncLocation.mutate(values.nfc_box_sync_location);
     }
   };
 
@@ -99,6 +129,32 @@ export function GeneralSettings() {
           label={t("settings.general.round_prices.label")}
           tooltip={t("settings.general.round_prices.tooltip")}
           name="round_prices"
+          valuePropName="checked"
+        >
+          <Checkbox />
+        </Form.Item>
+
+        <Form.Item
+          label={t("settings.general.moonraker_url.label")}
+          tooltip={t("settings.general.moonraker_url.tooltip")}
+          name="moonraker_url"
+          rules={[{ required: false }, { pattern: /^https?:\/\/.+(?<!\/)$|^$/ }]}
+        >
+          <Input placeholder="http://printer.local:7125" />
+        </Form.Item>
+
+        <Form.Item
+          label={t("settings.general.moonraker_api_key.label")}
+          tooltip={t("settings.general.moonraker_api_key.tooltip")}
+          name="moonraker_api_key"
+        >
+          <Input.Password />
+        </Form.Item>
+
+        <Form.Item
+          label={t("settings.general.nfc_box_sync_location.label")}
+          tooltip={t("settings.general.nfc_box_sync_location.tooltip")}
+          name="nfc_box_sync_location"
           valuePropName="checked"
         >
           <Checkbox />

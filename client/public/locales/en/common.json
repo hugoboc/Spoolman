@@ -322,6 +322,18 @@
             "round_prices": {
                 "label": "Round prices",
                 "tooltip": "Round prices to the nearest whole number."
+            },
+            "moonraker_url": {
+                "label": "Moonraker URL",
+                "tooltip": "Base URL for the Klipper/Moonraker printer used by NFC box activation."
+            },
+            "moonraker_api_key": {
+                "label": "Moonraker API key",
+                "tooltip": "Optional API key sent to Moonraker when setting the active spool."
+            },
+            "nfc_box_sync_location": {
+                "label": "Sync NFC box assignments to spool locations",
+                "tooltip": "When enabled, assigning a spool to an NFC box also sets the spool location to the box name."
             }
         },
         "extra_fields": {
@@ -388,6 +400,9 @@
             "edit": "#{{id}} Edit Manufacturer | Spoolman",
             "create": "Create Manufacturer | Spoolman",
             "clone": "#{{id}} Clone Manufacturer | Spoolman"
+        },
+        "nfc-box": {
+            "list": "NFC Boxes | Spoolman"
         }
     },
     "locations": {
@@ -395,5 +410,23 @@
         "new_location": "New Location",
         "no_location": "No Location",
         "no_locations_help": "This page lets you organize your spools in locations, add some spools to get started!"
+    },
+    "nfc_boxes": {
+        "title": "NFC Boxes",
+        "create": "Create NFC Box",
+        "edit": "Edit NFC Box",
+        "copy_url": "Copy NFC URL",
+        "copied": "NFC URL copied to clipboard",
+        "copy_failed": "Failed to copy NFC URL",
+        "empty_spool": "No spool assigned",
+        "delete_confirm": "Delete NFC box?",
+        "delete_confirm_description": "Delete NFC box \"{{name}}\"? The NFC tag will stop working.",
+        "fields": {
+            "id": "ID",
+            "name": "Name",
+            "nfc_url": "NFC URL",
+            "assigned_spool": "Assigned Spool",
+            "comment": "Comment"
+        }
     }
 }
