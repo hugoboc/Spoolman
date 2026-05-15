@@ -19,9 +19,9 @@
   - [x] Task 3: Add NFC box database model and migration
   - [x] Task 4: Add NFC box database helpers
   - [x] Task 5: Add NFC box response models
-- [ ] **Phase 3: Backend API**
-  - [ ] Task 6: Add NFC box management API
-  - [ ] Task 7: Add NFC scan and action API
+- [x] **Phase 3: Backend API**
+  - [x] Task 6: Add NFC box management API
+  - [x] Task 7: Add NFC scan and action API
 - [ ] **Phase 4: Settings and Management UI**
   - [ ] Task 8: Add settings UI fields
   - [ ] Task 9: Add NFC boxes management page
