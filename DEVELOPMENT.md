@@ -29,7 +29,7 @@ SPOOLMAN_CORS_ORIGIN=http://localhost:5173 uvicorn spoolman.main:app --reload
 
 ```powershell
 cd d:\00_Coding_Projects\Spoolman\client
-$env:VITE_APIURL = "http://localhost:8000"
+$env:VITE_APIURL = "http://localhost:8000/api/v1"
 npm run dev
 ```
 
