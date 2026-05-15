@@ -428,5 +428,26 @@
             "assigned_spool": "Assigned Spool",
             "comment": "Comment"
         }
+    },
+    "nfc_scan": {
+        "not_found_title": "NFC Box Not Found",
+        "not_found_subtitle": "This NFC tag does not match any registered box.",
+        "error_title": "Failed to load NFC box",
+        "retry": "Retry",
+        "back_to_box": "Back",
+        "empty_box": "No spool is assigned to this box.",
+        "assigned_spool": "Assigned spool",
+        "activate_in_klipper": "Activate in Klipper",
+        "assign_spool": "Assign Spool",
+        "assign_different_spool": "Assign Different Spool",
+        "clear_box": "Clear Box",
+        "create_new_spool": "Create New Spool",
+        "activation_success": "Spool activated in Klipper!",
+        "activation_failed": "Failed to activate spool",
+        "archived_spool_warning": "Assigned spool is archived",
+        "archived_cannot_activate": "Archived spools cannot be activated. Assign a different spool first.",
+        "search_spools": "Search spools…",
+        "select_spool": "Select a spool",
+        "no_spools_found": "No spools found"
     }
 }

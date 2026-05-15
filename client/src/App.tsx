@@ -235,6 +235,7 @@ function App() {
                   <Route path="/help" element={<LoadablePage name="help" />} />
                   <Route path="/locations" element={<LoadablePage name="locations" />} />
                   <Route path="/nfc-box" element={<LoadablePage name="nfcBoxes" />} />
+                  <Route path="/nfc/box/:token" element={<LoadablePage name="nfcBoxScan" />} />
                   <Route path="*" element={<ErrorComponent />} />
                 </Route>
               </Routes>
