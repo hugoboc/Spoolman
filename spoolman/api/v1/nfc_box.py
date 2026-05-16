@@ -1,5 +1,7 @@
 """NFC box management endpoints."""
 
+import json
+
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -9,9 +11,10 @@ from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spoolman.api.v1.models import Message, NfcBox
-from spoolman.database import nfc_box
+from spoolman.database import nfc_box, setting
 from spoolman.database.database import get_db_session
-from spoolman.exceptions import ItemCreateError
+from spoolman.exceptions import ItemCreateError, ItemNotFoundError
+from spoolman.settings import parse_setting
 
 router = APIRouter(prefix="/nfc-box", tags=["nfc-box"])
 
@@ -81,5 +84,27 @@ async def delete(db: Annotated[AsyncSession, Depends(get_db_session)], box_id: i
             status_code=400,
             content=Message(message="Cannot delete a dry box that has a spool assigned. Clear the box first.").dict(),
         )
+    box_name = item.name
     await nfc_box.delete(db, box_id)
+
+    # Remove the box name from the locations and locations_spoolorders settings
+    locations_def = parse_setting("locations")
+    spoolorders_def = parse_setting("locations_spoolorders")
+    try:
+        loc_setting = await setting.get(db, locations_def)
+        locations: list[str] = json.loads(loc_setting.value)
+        if box_name in locations:
+            locations.remove(box_name)
+            await setting.update(db=db, definition=locations_def, value=json.dumps(locations))
+    except ItemNotFoundError:
+        pass
+    try:
+        order_setting = await setting.get(db, spoolorders_def)
+        spoolorders: dict = json.loads(order_setting.value)
+        if box_name in spoolorders:
+            del spoolorders[box_name]
+            await setting.update(db=db, definition=spoolorders_def, value=json.dumps(spoolorders))
+    except ItemNotFoundError:
+        pass
+
     return Message(message="Success!")
