@@ -1,3 +1,4 @@
+import json
 from collections.abc import AsyncGenerator
 
 import pytest
@@ -5,7 +6,8 @@ import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from spoolman.api.v1.models import NfcBox as NfcBoxResponse
-from spoolman.database import models, nfc_box
+from spoolman.database import models, nfc_box, setting, spool as spool_db
+from spoolman.settings import parse_setting
 
 
 @pytest_asyncio.fixture
@@ -116,3 +118,55 @@ async def test_find_nfc_boxes_can_serialize_assigned_spools(db_session: AsyncSes
     assert response.id == box.id
     assert response.spool is not None
     assert response.spool.id == spool.id
+
+
+@pytest.mark.asyncio
+async def test_creating_spool_with_nfc_box_location_assigns_box(db_session: AsyncSession):
+    box = await nfc_box.create(db=db_session, name="Box 01")
+    created_spool = await create_spool(db_session, location=box.name)
+
+    await nfc_box.sync_spool_location_assignment(db=db_session, spool=created_spool)
+    updated_box = await nfc_box.get_by_id(db_session, box.id)
+
+    assert updated_box.spool_id == created_spool.id
+
+
+@pytest.mark.asyncio
+async def test_updating_spool_location_to_occupied_nfc_box_clears_displaced_spool_location(
+    db_session: AsyncSession,
+):
+    box = await nfc_box.create(db=db_session, name="Box 01")
+    first_spool = await create_spool(db_session)
+    second_spool = await create_spool(db_session)
+    await nfc_box.assign_spool(db=db_session, box=box, spool=first_spool, sync_location=True)
+
+    second_spool.location = box.name
+    await nfc_box.sync_spool_location_assignment(db=db_session, spool=second_spool)
+    updated_box = await nfc_box.get_by_id(db_session, box.id)
+    displaced_spool = await spool_db.get_by_id(db_session, first_spool.id)
+
+    assert updated_box.spool_id == second_spool.id
+    assert displaced_spool.location is None
+
+
+@pytest.mark.asyncio
+async def test_renaming_assigned_nfc_box_updates_synced_spool_location_and_location_settings(
+    db_session: AsyncSession,
+):
+    box = await nfc_box.create(db=db_session, name="Box 01")
+    assigned_spool = await create_spool(db_session)
+    await nfc_box.assign_spool(db=db_session, box=box, spool=assigned_spool, sync_location=True)
+    locations_def = parse_setting("locations")
+    spoolorders_def = parse_setting("locations_spoolorders")
+    await setting.update(db=db_session, definition=locations_def, value=json.dumps([box.name, "Shelf"]))
+    await setting.update(db=db_session, definition=spoolorders_def, value=json.dumps({box.name: [assigned_spool.id]}))
+    await db_session.commit()
+
+    await nfc_box.update(db=db_session, box_id=box.id, data={"name": "Box 01 Renamed"})
+    updated_spool = await spool_db.get_by_id(db_session, assigned_spool.id)
+    locations = json.loads((await setting.get(db_session, locations_def)).value)
+    spoolorders = json.loads((await setting.get(db_session, spoolorders_def)).value)
+
+    assert updated_spool.location == "Box 01 Renamed"
+    assert locations == ["Box 01 Renamed", "Shelf"]
+    assert spoolorders == {"Box 01 Renamed": [assigned_spool.id]}

@@ -1,5 +1,6 @@
 """Helper functions for interacting with NFC box database objects."""
 
+import json
 from datetime import datetime, timezone
 from uuid import uuid4
 
@@ -8,8 +9,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from spoolman.database import models
+from spoolman.database import models, setting
 from spoolman.exceptions import ItemCreateError, ItemNotFoundError
+from spoolman.settings import parse_setting
 
 
 def utcnow() -> datetime:
@@ -72,8 +74,13 @@ async def find(db: AsyncSession) -> list[models.NfcBox]:
 async def update(*, db: AsyncSession, box_id: int, data: dict) -> models.NfcBox:
     """Update editable NFC box fields."""
     item = await get_by_id(db, box_id)
+    old_name = item.name
     for key, value in data.items():
         setattr(item, key, value)
+    if "name" in data and data["name"] != old_name:
+        if item.spool is not None and item.spool.location == old_name:
+            item.spool.location = data["name"]
+        await rename_location_settings(db=db, current_name=old_name, new_name=data["name"])
     try:
         await db.commit()
     except IntegrityError as exc:
@@ -125,3 +132,69 @@ async def clear_spool(*, db: AsyncSession, box: models.NfcBox, sync_location: bo
     box.spool = None
     await db.commit()
     return box
+
+
+async def sync_spool_location_assignment(*, db: AsyncSession, spool: models.Spool) -> None:
+    """Sync NFC box assignment from a spool's current location."""
+    rows = await db.execute(sqlalchemy.select(models.NfcBox).where(models.NfcBox.spool_id == spool.id))
+    current_box = rows.scalar_one_or_none()
+
+    target_box: models.NfcBox | None = None
+    if spool.location:
+        rows = await db.execute(
+            sqlalchemy.select(models.NfcBox)
+            .where(models.NfcBox.name == spool.location)
+            .options(joinedload(models.NfcBox.spool)),
+        )
+        target_box = rows.unique().scalar_one_or_none()
+
+    if target_box is not None:
+        if current_box is not None and current_box.id != target_box.id:
+            current_box.spool = None
+
+        displaced_spool = target_box.spool
+        if displaced_spool is not None and displaced_spool.id != spool.id:
+            if displaced_spool.location == target_box.name:
+                displaced_spool.location = None
+            target_box.spool = None
+
+        await db.flush()
+        target_box.spool = spool
+        spool.location = target_box.name
+    elif current_box is not None:
+        current_box.spool = None
+
+    await db.commit()
+
+
+async def rename_location_settings(*, db: AsyncSession, current_name: str, new_name: str) -> None:
+    """Rename NFC box location entries in location-related settings."""
+    locations_def = parse_setting("locations")
+    try:
+        loc_setting = await setting.get(db, locations_def)
+        locations: list[str] = json.loads(loc_setting.value)
+    except ItemNotFoundError:
+        locations = []
+
+    if current_name in locations:
+        renamed_locations: list[str] = []
+        for location in locations:
+            renamed_location = new_name if location == current_name else location
+            if renamed_location not in renamed_locations:
+                renamed_locations.append(renamed_location)
+        await setting.update(db=db, definition=locations_def, value=json.dumps(renamed_locations))
+
+    spoolorders_def = parse_setting("locations_spoolorders")
+    try:
+        order_setting = await setting.get(db, spoolorders_def)
+        spoolorders: dict[str, list[int]] = json.loads(order_setting.value)
+    except ItemNotFoundError:
+        spoolorders = {}
+
+    if current_name in spoolorders:
+        current_order = spoolorders.pop(current_name)
+        existing_order = spoolorders.get(new_name, [])
+        spoolorders[new_name] = existing_order + [
+            spool_id for spool_id in current_order if spool_id not in existing_order
+        ]
+        await setting.update(db=db, definition=spoolorders_def, value=json.dumps(spoolorders))
