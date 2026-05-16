@@ -203,7 +203,7 @@ export function useSpoolmanLocations(enabled: boolean = false) {
 }
 
 export function useNfcBoxNames(enabled: boolean = false) {
-  return useQuery<{ name: string }[], unknown, string[]>({
+  return useQuery<{ name: string; spool?: unknown }[], unknown, string[]>({
     enabled: enabled,
     queryKey: ["nfc-box-names"],
     queryFn: async () => {
@@ -214,7 +214,10 @@ export function useNfcBoxNames(enabled: boolean = false) {
       return response.json();
     },
     select: (data) => {
-      return data.map((box) => box.name).sort();
+      return data
+        .filter((box) => !box.spool)
+        .map((box) => box.name)
+        .sort();
     },
   });
 }

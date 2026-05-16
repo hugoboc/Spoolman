@@ -73,7 +73,13 @@ async def update(
     return NfcBox.from_db(item)
 
 
-@router.delete("/{box_id}", responses={404: {"model": Message}})
-async def delete(db: Annotated[AsyncSession, Depends(get_db_session)], box_id: int) -> Message:
+@router.delete("/{box_id}", response_model=None, responses={200: {"model": Message}, 400: {"model": Message}, 404: {"model": Message}})
+async def delete(db: Annotated[AsyncSession, Depends(get_db_session)], box_id: int) -> Message | JSONResponse:
+    item = await nfc_box.get_by_id(db, box_id)
+    if item.spool is not None:
+        return JSONResponse(
+            status_code=400,
+            content=Message(message="Cannot delete a dry box that has a spool assigned. Clear the box first.").dict(),
+        )
     await nfc_box.delete(db, box_id)
     return Message(message="Success!")

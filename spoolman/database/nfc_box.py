@@ -85,6 +85,8 @@ async def update(*, db: AsyncSession, box_id: int, data: dict) -> models.NfcBox:
 async def delete(db: AsyncSession, box_id: int) -> None:
     """Delete an NFC box and invalidate its token."""
     item = await get_by_id(db, box_id)
+    if item.spool is not None and item.spool.location == item.name:
+        item.spool.location = None
     await db.delete(item)
     await db.commit()
 

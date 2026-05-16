@@ -150,18 +150,24 @@ export const NfcBoxList = () => {
                 <Tooltip title={t("buttons.edit")}>
                   <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(record)} />
                 </Tooltip>
-                <Popconfirm
-                  title={t("nfc_boxes.delete_confirm")}
-                  description={t("nfc_boxes.delete_confirm_description", { name: record.name })}
-                  onConfirm={() => deleteBox({ resource: "nfc-box", id: record.id })}
-                  okText={t("buttons.delete")}
-                  cancelText={t("buttons.cancel")}
-                  okButtonProps={{ danger: true }}
-                >
-                  <Tooltip title={t("buttons.delete")}>
-                    <Button size="small" danger icon={<DeleteOutlined />} />
+                {record.spool ? (
+                  <Tooltip title={t("nfc_boxes.delete_has_spool")}>
+                    <Button size="small" danger icon={<DeleteOutlined />} disabled />
                   </Tooltip>
-                </Popconfirm>
+                ) : (
+                  <Popconfirm
+                    title={t("nfc_boxes.delete_confirm")}
+                    description={t("nfc_boxes.delete_confirm_description", { name: record.name })}
+                    onConfirm={() => deleteBox({ resource: "nfc-box", id: record.id })}
+                    okText={t("buttons.delete")}
+                    cancelText={t("buttons.cancel")}
+                    okButtonProps={{ danger: true }}
+                  >
+                    <Tooltip title={t("buttons.delete")}>
+                      <Button size="small" danger icon={<DeleteOutlined />} />
+                    </Tooltip>
+                  </Popconfirm>
+                )}
               </Space>
             )}
           />

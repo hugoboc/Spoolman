@@ -424,6 +424,7 @@
         "empty_spool": "No spool assigned",
         "delete_confirm": "Delete dry box?",
         "delete_confirm_description": "Delete dry box \"{{name}}\"? The NFC tag will stop working.",
+        "delete_has_spool": "Clear the assigned spool before deleting this box.",
         "fields": {
             "id": "ID",
             "name": "Name",
