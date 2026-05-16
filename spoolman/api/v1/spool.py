@@ -11,9 +11,12 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.ext.asyncio import AsyncSession
 
+import sqlalchemy
+
 from spoolman.api.v1.models import Message, Spool, SpoolEvent
 from spoolman.database import spool
 from spoolman.database.database import get_db_session
+from spoolman.database.models import NfcBox as NfcBoxModel
 from spoolman.database.utils import SortOrder
 from spoolman.exceptions import ItemCreateError, SpoolMeasureError
 from spoolman.extra_fields import EntityType, get_extra_fields, validate_extra_field_dict
@@ -470,6 +473,32 @@ async def update(  # noqa: ANN201
             status_code=400,
             content={"message": "Failed to update spool, see server logs for more information."},
         )
+
+    if "location" in patch_data:
+        new_location = patch_data["location"]
+
+        rows = await db.execute(
+            sqlalchemy.select(NfcBoxModel).where(NfcBoxModel.spool_id == spool_id),
+        )
+        current_box: NfcBoxModel | None = rows.scalar_one_or_none()
+
+        if new_location:
+            rows = await db.execute(
+                sqlalchemy.select(NfcBoxModel).where(NfcBoxModel.name == new_location),
+            )
+            target_box: NfcBoxModel | None = rows.scalar_one_or_none()
+
+            if target_box is not None and (current_box is None or current_box.id != target_box.id):
+                if current_box is not None:
+                    current_box.spool_id = None
+                target_box.spool_id = spool_id
+                await db.commit()
+            elif target_box is None and current_box is not None:
+                current_box.spool_id = None
+                await db.commit()
+        elif current_box is not None:
+            current_box.spool_id = None
+            await db.commit()
 
     return Spool.from_db(db_item)
 
