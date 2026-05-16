@@ -19,7 +19,7 @@ import {
 } from "antd";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
-import { getAPIURL, getBasePath } from "../../utils/url";
+import { getAPIURL } from "../../utils/url";
 import { IFilament } from "../filaments/model";
 import { ISpool } from "../spools/model";
 import { INfcBox } from "../nfcBoxes/model";
@@ -44,6 +44,14 @@ function spoolLabel(spool: ISpool): string {
   if (filament.name) parts.push(filament.name);
   if (spool.location) parts.push(`(${spool.location})`);
   return parts.join(" — ");
+}
+
+function getCreateSpoolPath(box: INfcBox): string {
+  const params = new URLSearchParams({
+    location: box.name,
+    return_to: `/nfc/box/${box.token}`,
+  });
+  return `/spool/create?${params.toString()}`;
 }
 
 export const NfcBoxScanPage = () => {
@@ -249,7 +257,7 @@ export const NfcBoxScanPage = () => {
             >
               {t("nfc_scan.assign_spool")}
             </Button>
-            <Link to={`${getBasePath()}/spool/create`}>
+            <Link to={getCreateSpoolPath(box)}>
               <Button block icon={<PlusOutlined />}>
                 {t("nfc_scan.create_new_spool")}
               </Button>
@@ -315,7 +323,7 @@ export const NfcBoxScanPage = () => {
             >
               {t("nfc_scan.clear_box")}
             </Button>
-            <Link to={`${getBasePath()}/spool/create`}>
+            <Link to={getCreateSpoolPath(box)}>
               <Button block icon={<PlusOutlined />}>
                 {t("nfc_scan.create_new_spool")}
               </Button>

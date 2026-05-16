@@ -1,5 +1,6 @@
 """Integration tests for the NFC box management API endpoints."""
 
+import json
 from uuid import uuid4
 
 import httpx
@@ -62,6 +63,34 @@ def test_update_nfc_box():
     assert body["comment"] == "Updated comment"
 
     httpx.delete(f"{URL}/api/v1/nfc-box/{box['id']}").raise_for_status()
+
+
+def test_rename_assigned_nfc_box_updates_synced_location_and_settings(random_filament):
+    """Test renaming an assigned NFC box updates synced spool location and location settings."""
+    box = httpx.post(f"{URL}/api/v1/nfc-box", json={"name": _box_name("Box Rename")}).json()
+    spool = httpx.post(f"{URL}/api/v1/spool", json={"filament_id": random_filament["id"]}).json()
+    httpx.post(f"{URL}/api/v1/nfc/box/{box['token']}/assign", json={"spool_id": spool["id"]}).raise_for_status()
+    httpx.post(f"{URL}/api/v1/setting/locations", json=json.dumps([box["name"], "Shelf"])).raise_for_status()
+    httpx.post(
+        f"{URL}/api/v1/setting/locations_spoolorders",
+        json=json.dumps({box["name"]: [spool["id"]]}),
+    ).raise_for_status()
+    new_name = _box_name("Box Renamed")
+
+    result = httpx.patch(f"{URL}/api/v1/nfc-box/{box['id']}", json={"name": new_name})
+    result.raise_for_status()
+    updated_spool = httpx.get(f"{URL}/api/v1/spool/{spool['id']}").json()
+    locations = json.loads(httpx.get(f"{URL}/api/v1/setting/locations").json()["value"])
+    spoolorders = json.loads(httpx.get(f"{URL}/api/v1/setting/locations_spoolorders").json()["value"])
+
+    assert updated_spool["location"] == new_name
+    assert new_name in locations
+    assert box["name"] not in locations
+    assert spoolorders[new_name] == [spool["id"]]
+    assert box["name"] not in spoolorders
+
+    httpx.delete(f"{URL}/api/v1/nfc-box/{box['id']}").raise_for_status()
+    httpx.delete(f"{URL}/api/v1/spool/{spool['id']}").raise_for_status()
 
 
 def test_find_nfc_boxes_includes_created_box():

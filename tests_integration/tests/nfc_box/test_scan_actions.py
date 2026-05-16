@@ -68,6 +68,40 @@ def test_assigning_spool_moves_it_between_boxes(random_filament: dict[str, Any])
     httpx.delete(f"{URL}/api/v1/spool/{spool['id']}").raise_for_status()
 
 
+def test_creating_spool_with_nfc_box_location_assigns_box(random_filament: dict[str, Any]):
+    """Test creating a spool in an NFC box location assigns that box."""
+    box = httpx.post(f"{URL}/api/v1/nfc-box", json={"name": _box_name("Box Create Location")}).json()
+
+    spool = _create_spool(random_filament["id"], location=box["name"])
+    scanned_box = httpx.get(f"{URL}/api/v1/nfc/box/{box['token']}")
+    scanned_box.raise_for_status()
+
+    assert scanned_box.json()["spool"]["id"] == spool["id"]
+
+    httpx.delete(f"{URL}/api/v1/nfc-box/{box['id']}").raise_for_status()
+    httpx.delete(f"{URL}/api/v1/spool/{spool['id']}").raise_for_status()
+
+
+def test_updating_spool_to_occupied_nfc_box_clears_displaced_location(random_filament: dict[str, Any]):
+    """Test moving a spool into an occupied NFC box clears the displaced spool's synced location."""
+    box = httpx.post(f"{URL}/api/v1/nfc-box", json={"name": _box_name("Box Replace")}).json()
+    first_spool = _create_spool(random_filament["id"])
+    second_spool = _create_spool(random_filament["id"])
+    httpx.post(f"{URL}/api/v1/nfc/box/{box['token']}/assign", json={"spool_id": first_spool["id"]}).raise_for_status()
+
+    update = httpx.patch(f"{URL}/api/v1/spool/{second_spool['id']}", json={"location": box["name"]})
+    update.raise_for_status()
+    scanned_box = httpx.get(f"{URL}/api/v1/nfc/box/{box['token']}").json()
+    displaced_spool = httpx.get(f"{URL}/api/v1/spool/{first_spool['id']}").json()
+
+    assert scanned_box["spool"]["id"] == second_spool["id"]
+    assert displaced_spool.get("location") is None
+
+    httpx.delete(f"{URL}/api/v1/nfc-box/{box['id']}").raise_for_status()
+    httpx.delete(f"{URL}/api/v1/spool/{first_spool['id']}").raise_for_status()
+    httpx.delete(f"{URL}/api/v1/spool/{second_spool['id']}").raise_for_status()
+
+
 def test_clear_nfc_box_removes_assignment_and_location(random_filament: dict[str, Any]):
     """Test clearing a box removes its assignment and synced spool location."""
     box = httpx.post(f"{URL}/api/v1/nfc-box", json={"name": _box_name("Box Clear")}).json()

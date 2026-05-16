@@ -106,6 +106,17 @@ async def assign_spool(
     sync_location: bool,
 ) -> models.NfcBox:
     """Assign a spool to a box, moving it from any previous box."""
+    return await move_spool_to_box(db=db, box=box, spool=spool, sync_location=sync_location)
+
+
+async def move_spool_to_box(
+    *,
+    db: AsyncSession,
+    box: models.NfcBox,
+    spool: models.Spool,
+    sync_location: bool,
+) -> models.NfcBox:
+    """Move a spool into a box, clearing conflicting NFC box assignments."""
     rows = await db.execute(sqlalchemy.select(models.NfcBox).where(models.NfcBox.spool_id == spool.id))
     previous_box = rows.scalar_one_or_none()
     if previous_box is not None and previous_box.id != box.id:
@@ -116,6 +127,10 @@ async def assign_spool(
     old_spool = box.spool
     if old_spool is not None and old_spool.id != spool.id and sync_location and old_spool.location == box.name:
         old_spool.location = None
+
+    if old_spool is not None and old_spool.id != spool.id:
+        box.spool = None
+        await db.flush()
 
     box.spool = spool
     if sync_location:
@@ -149,22 +164,10 @@ async def sync_spool_location_assignment(*, db: AsyncSession, spool: models.Spoo
         target_box = rows.unique().scalar_one_or_none()
 
     if target_box is not None:
-        if current_box is not None and current_box.id != target_box.id:
-            current_box.spool = None
-
-        displaced_spool = target_box.spool
-        if displaced_spool is not None and displaced_spool.id != spool.id:
-            if displaced_spool.location == target_box.name:
-                displaced_spool.location = None
-            target_box.spool = None
-
-        await db.flush()
-        target_box.spool = spool
-        spool.location = target_box.name
+        await move_spool_to_box(db=db, box=target_box, spool=spool, sync_location=True)
     elif current_box is not None:
         current_box.spool = None
-
-    await db.commit()
+        await db.commit()
 
 
 async def rename_location_settings(*, db: AsyncSession, current_name: str, new_name: str) -> None:

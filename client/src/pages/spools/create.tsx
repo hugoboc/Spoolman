@@ -6,6 +6,7 @@ import TextArea from "antd/es/input/TextArea";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 import { ExtraFieldFormItem, ParsedExtras, StringifiedExtras } from "../../components/extraFields";
 import { useNfcBoxNames, useSpoolmanLocations } from "../../components/otherModels";
 import { searchMatches } from "../../utils/filtering";
@@ -28,8 +29,16 @@ type ISpoolRequest = Omit<ISpoolParsedExtras, "id" | "registered"> & {
   filament_id: number | string;
 };
 
+function getInternalReturnTo(value: string | null): string | null {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) {
+    return null;
+  }
+  return value;
+}
+
 export const SpoolCreate = (props: IResourceComponentsProps & CreateOrCloneProps) => {
   const t = useTranslate();
+  const navigate = useNavigate();
   const extraFields = useGetFields(EntityType.spool);
   const currency = useCurrency();
 
@@ -67,8 +76,13 @@ export const SpoolCreate = (props: IResourceComponentsProps & CreateOrCloneProps
   // If the query variable filament_id is set, set the filament_id field to that value
   const query = new URLSearchParams(window.location.search);
   const filament_id = query.get("filament_id");
+  const initialLocation = props.mode === "create" ? query.get("location") : null;
+  const returnTo = getInternalReturnTo(query.get("return_to"));
   if (filament_id) {
     formProps.initialValues.filament_id = parseInt(filament_id);
+  }
+  if (initialLocation) {
+    formProps.initialValues.location = initialLocation;
   }
 
   //
@@ -120,13 +134,17 @@ export const SpoolCreate = (props: IResourceComponentsProps & CreateOrCloneProps
 
     if (quantity > 1) {
       const submit = Array(quantity).fill(values);
-      // queue multiple creates this way for now Refine doesn't seem to map Arrays to createMany or multiple creates like it says it does
+      // Queue multiple creates this way for now. Refine does not map arrays to createMany here.
       submit.forEach(async (r) => await onFinish(r));
     } else {
       await onFinish(values);
     }
 
-    redirect(redirectTo);
+    if (redirectTo === "list" && returnTo) {
+      navigate(returnTo);
+    } else {
+      redirect(redirectTo);
+    }
   };
 
   // Use useEffect to update the form's initialValues when the extra fields are loaded
@@ -139,6 +157,12 @@ export const SpoolCreate = (props: IResourceComponentsProps & CreateOrCloneProps
       }
     });
   }, [form, extraFields.data, formProps.initialValues]);
+
+  useEffect(() => {
+    if (initialLocation) {
+      form.setFieldValue("location", initialLocation);
+    }
+  }, [form, initialLocation]);
 
   //
   // Weight calculations
@@ -181,6 +205,9 @@ export const SpoolCreate = (props: IResourceComponentsProps & CreateOrCloneProps
       allLocations.push(name);
     }
   });
+  if (initialLocation && !allLocations.includes(initialLocation)) {
+    allLocations.push(initialLocation);
+  }
   if (newLocation.trim() && !allLocations.includes(newLocation)) {
     allLocations.push(newLocation.trim());
   }
