@@ -92,10 +92,27 @@ export const NfcBoxList = () => {
 
   const handleCopyUrl = (box: INfcBox) => {
     const url = getNfcBoxUrl(box);
-    navigator.clipboard.writeText(url).then(
-      () => messageApi.success(t("nfc_boxes.copied")),
-      () => messageApi.error(t("nfc_boxes.copy_failed")),
-    );
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(
+        () => messageApi.success(t("nfc_boxes.copied")),
+        () => messageApi.error(t("nfc_boxes.copy_failed")),
+      );
+    } else {
+      // Fallback for non-secure contexts (HTTP on local network)
+      const el = document.createElement("textarea");
+      el.value = url;
+      el.style.cssText = "position:fixed;opacity:0";
+      document.body.appendChild(el);
+      el.focus();
+      el.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(el);
+      if (ok) {
+        messageApi.success(t("nfc_boxes.copied"));
+      } else {
+        messageApi.error(t("nfc_boxes.copy_failed"));
+      }
+    }
   };
 
   const handleClear = async (box: INfcBox) => {
