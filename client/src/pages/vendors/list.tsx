@@ -19,6 +19,7 @@ import { removeUndefined } from "../../utils/filtering";
 import { EntityType, useGetFields } from "../../utils/queryFields";
 import { TableState, useInitialTableState, useStoreInitialState } from "../../utils/saveload";
 import { IVendor } from "./model";
+import { useVendorShowModal } from "./showModal";
 
 dayjs.extend(utc);
 
@@ -92,9 +93,10 @@ export const VendorList = () => {
     tableProps.pagination.showSizeChanger = true;
   }
 
-  const { editUrl, showUrl, cloneUrl } = useNavigation();
+  const { editUrl, cloneUrl } = useNavigation();
+  const { openVendorShowModal, vendorShowModal } = useVendorShowModal();
   const actions = (record: IVendor) => [
-    { name: t("buttons.show"), icon: <EyeOutlined />, link: showUrl("vendor", record.id) },
+    { name: t("buttons.show"), icon: <EyeOutlined />, onClick: () => openVendorShowModal(record) },
     { name: t("buttons.edit"), icon: <EditOutlined />, link: editUrl("vendor", record.id) },
     { name: t("buttons.clone"), icon: <PlusSquareOutlined />, link: cloneUrl("vendor", record.id) },
   ];
@@ -159,6 +161,7 @@ export const VendorList = () => {
         </>
       )}
     >
+      {vendorShowModal}
       <Table
         {...tableProps}
         sticky

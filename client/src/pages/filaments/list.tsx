@@ -28,6 +28,7 @@ import { EntityType, useGetFields } from "../../utils/queryFields";
 import { TableState, useInitialTableState, useStoreInitialState } from "../../utils/saveload";
 import { useCurrencyFormatter } from "../../utils/settings";
 import { IFilament } from "./model";
+import { useFilamentShowModal } from "./showModal";
 
 dayjs.extend(utc);
 
@@ -147,10 +148,11 @@ export const FilamentList = () => {
     tableProps.pagination.showSizeChanger = true;
   }
 
-  const { editUrl, showUrl, cloneUrl } = useNavigation();
+  const { editUrl, cloneUrl } = useNavigation();
+  const { openFilamentShowModal, filamentShowModal } = useFilamentShowModal();
   const filamentAddSpoolUrl = (id: number): string => `/spool/create?filament_id=${id}`;
   const actions = (record: IFilamentCollapsed) => [
-    { name: t("buttons.show"), icon: <EyeOutlined />, link: showUrl("filament", record.id) },
+    { name: t("buttons.show"), icon: <EyeOutlined />, onClick: () => openFilamentShowModal(record as IFilament) },
     { name: t("buttons.edit"), icon: <EditOutlined />, link: editUrl("filament", record.id) },
     { name: t("buttons.clone"), icon: <PlusSquareOutlined />, link: cloneUrl("filament", record.id) },
     { name: t("filament.buttons.add_spool"), icon: <FileOutlined />, link: filamentAddSpoolUrl(record.id) },
@@ -216,6 +218,7 @@ export const FilamentList = () => {
         </>
       )}
     >
+      {filamentShowModal}
       <Table<IFilamentCollapsed>
         {...tableProps}
         sticky

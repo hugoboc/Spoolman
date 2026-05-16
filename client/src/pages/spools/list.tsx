@@ -39,6 +39,7 @@ import { TableState, useInitialTableState, useSavedState, useStoreInitialState }
 import { useCurrencyFormatter } from "../../utils/settings";
 import { setSpoolArchived, useSpoolAdjustModal } from "./functions";
 import { ISpool } from "./model";
+import { useSpoolShowModal } from "./showModal";
 
 dayjs.extend(utc);
 
@@ -104,6 +105,7 @@ export const SpoolList = () => {
   const extraFields = useGetFields(EntityType.spool);
   const currencyFormatter = useCurrencyFormatter();
   const { openSpoolAdjustModal, spoolAdjustModal } = useSpoolAdjustModal();
+  const { openSpoolShowModal, spoolShowModal } = useSpoolShowModal();
 
   const allColumnsWithExtraFields = [...allColumns, ...(extraFields.data?.map((field) => "extra." + field.key) ?? [])];
 
@@ -209,11 +211,11 @@ export const SpoolList = () => {
     tableProps.pagination.showSizeChanger = true;
   }
 
-  const { editUrl, showUrl, cloneUrl } = useNavigation();
+  const { editUrl, cloneUrl } = useNavigation();
   const actions = useCallback(
     (record: ISpoolCollapsed) => {
       const actions: Action[] = [
-        { name: t("buttons.show"), icon: <EyeOutlined />, link: showUrl("spool", record.id) },
+        { name: t("buttons.show"), icon: <EyeOutlined />, onClick: () => openSpoolShowModal(record) },
         { name: t("buttons.edit"), icon: <EditOutlined />, link: editUrl("spool", record.id) },
         { name: t("buttons.clone"), icon: <PlusSquareOutlined />, link: cloneUrl("spool", record.id) },
         { name: t("spool.titles.adjust"), icon: <ToolOutlined />, onClick: () => openSpoolAdjustModal(record) },
@@ -229,7 +231,7 @@ export const SpoolList = () => {
       }
       return actions;
     },
-    [t, editUrl, showUrl, cloneUrl, openSpoolAdjustModal, archiveSpool, archiveSpoolPopup],
+    [t, editUrl, cloneUrl, openSpoolAdjustModal, openSpoolShowModal, archiveSpool, archiveSpoolPopup],
   );
 
   const originalOnChange = tableProps.onChange;
@@ -326,6 +328,7 @@ export const SpoolList = () => {
       )}
     >
       {spoolAdjustModal}
+      {spoolShowModal}
       <Table
         {...tableProps}
         sticky
