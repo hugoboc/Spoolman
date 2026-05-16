@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { useEffect, useMemo, useState } from "react";
 import { ExtraFieldFormItem, ParsedExtras, StringifiedExtras } from "../../components/extraFields";
-import { useSpoolmanLocations } from "../../components/otherModels";
+import { useNfcBoxNames, useSpoolmanLocations } from "../../components/otherModels";
 import { searchMatches } from "../../utils/filtering";
 import { useLocations } from "../locations/functions";
 import "../../utils/overrides.css";
@@ -166,6 +166,7 @@ export const SpoolCreate = (props: IResourceComponentsProps & CreateOrCloneProps
   };
 
   const locations = useSpoolmanLocations(true);
+  const nfcBoxNames = useNfcBoxNames(true);
   const settingsLocation = useLocations();
   const [newLocation, setNewLocation] = useState("");
 
@@ -173,6 +174,11 @@ export const SpoolCreate = (props: IResourceComponentsProps & CreateOrCloneProps
   locations?.data?.forEach((loc) => {
     if (!allLocations.includes(loc)) {
       allLocations.push(loc);
+    }
+  });
+  nfcBoxNames?.data?.forEach((name) => {
+    if (!allLocations.includes(name)) {
+      allLocations.push(name);
     }
   });
   if (newLocation.trim() && !allLocations.includes(newLocation)) {

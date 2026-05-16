@@ -201,3 +201,20 @@ export function useSpoolmanLocations(enabled: boolean = false) {
     },
   });
 }
+
+export function useNfcBoxNames(enabled: boolean = false) {
+  return useQuery<{ name: string }[], unknown, string[]>({
+    enabled: enabled,
+    queryKey: ["nfc-box-names"],
+    queryFn: async () => {
+      const response = await fetch(getAPIURL() + "/nfc-box");
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    },
+    select: (data) => {
+      return data.map((box) => box.name).sort();
+    },
+  });
+}

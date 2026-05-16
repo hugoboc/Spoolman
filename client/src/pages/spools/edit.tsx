@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { ExtraFieldFormItem, ParsedExtras, StringifiedExtras } from "../../components/extraFields";
-import { useSpoolmanLocations } from "../../components/otherModels";
+import { useNfcBoxNames, useSpoolmanLocations } from "../../components/otherModels";
 import { searchMatches } from "../../utils/filtering";
 import { formatNumberOnUserInput, numberParser, numberParserAllowEmpty } from "../../utils/parsing";
 import { EntityType, useGetFields } from "../../utils/queryFields";
@@ -149,6 +149,7 @@ export const SpoolEdit = () => {
   };
 
   const locations = useSpoolmanLocations(true);
+  const nfcBoxNames = useNfcBoxNames(true);
   const settingsLocation = useLocations();
   const [newLocation, setNewLocation] = useState("");
 
@@ -156,6 +157,11 @@ export const SpoolEdit = () => {
   locations?.data?.forEach((loc) => {
     if (!allLocations.includes(loc)) {
       allLocations.push(loc);
+    }
+  });
+  nfcBoxNames?.data?.forEach((name) => {
+    if (!allLocations.includes(name)) {
+      allLocations.push(name);
     }
   });
   if (newLocation.trim() && !allLocations.includes(newLocation)) {
