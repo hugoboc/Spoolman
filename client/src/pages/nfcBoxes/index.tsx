@@ -1,11 +1,12 @@
 import {
   CopyOutlined,
   DeleteOutlined,
+  DisconnectOutlined,
   EditOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
 import { List, useTable } from "@refinedev/antd";
-import { useCreate, useDelete, useTranslate, useUpdate } from "@refinedev/core";
+import { useCreate, useDelete, useInvalidate, useTranslate, useUpdate } from "@refinedev/core";
 import {
   Button,
   Form,
@@ -20,6 +21,7 @@ import {
 } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { useState } from "react";
+import { getAPIURL } from "../../utils/url";
 import { getNfcBoxUrl } from "./functions";
 import { INfcBox } from "./model";
 
@@ -40,11 +42,13 @@ export const NfcBoxList = () => {
   const { mutate: createBox } = useCreate<INfcBox>();
   const { mutate: updateBox } = useUpdate<INfcBox>();
   const { mutate: deleteBox } = useDelete();
+  const invalidate = useInvalidate();
 
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingBox, setEditingBox] = useState<INfcBox | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [clearingBoxId, setClearingBoxId] = useState<number | null>(null);
   const [createForm] = Form.useForm();
   const [editForm] = Form.useForm();
 
@@ -92,6 +96,21 @@ export const NfcBoxList = () => {
       () => messageApi.success(t("nfc_boxes.copied")),
       () => messageApi.error(t("nfc_boxes.copy_failed")),
     );
+  };
+
+  const handleClear = async (box: INfcBox) => {
+    setClearingBoxId(box.id);
+    try {
+      const res = await fetch(`${getAPIURL()}/nfc/box/${box.token}/clear`, { method: "POST" });
+      if (res.ok) {
+        await invalidate({ resource: "nfc-box", invalidates: ["list"] });
+      } else {
+        const body = await res.json().catch(() => ({}));
+        messageApi.error(body?.message ?? t("nfc_boxes.clear_failed"));
+      }
+    } finally {
+      setClearingBoxId(null);
+    }
   };
 
   return (
@@ -150,6 +169,23 @@ export const NfcBoxList = () => {
                 <Tooltip title={t("buttons.edit")}>
                   <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(record)} />
                 </Tooltip>
+                {record.spool && (
+                  <Popconfirm
+                    title={t("nfc_boxes.clear_confirm")}
+                    description={t("nfc_boxes.clear_confirm_description", { name: record.name })}
+                    onConfirm={() => handleClear(record)}
+                    okText={t("buttons.confirm")}
+                    cancelText={t("buttons.cancel")}
+                  >
+                    <Tooltip title={t("nfc_boxes.clear_box")}>
+                      <Button
+                        size="small"
+                        icon={<DisconnectOutlined />}
+                        loading={clearingBoxId === record.id}
+                      />
+                    </Tooltip>
+                  </Popconfirm>
+                )}
                 {record.spool ? (
                   <Tooltip title={t("nfc_boxes.delete_has_spool")}>
                     <Button size="small" danger icon={<DeleteOutlined />} disabled />
