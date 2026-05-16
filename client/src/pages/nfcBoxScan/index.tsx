@@ -40,8 +40,8 @@ function spoolLabel(spool: ISpool): string {
   const filament = spool.filament as IFilament;
   const parts: string[] = [`#${spool.id}`];
   if (filament.vendor?.name) parts.push(filament.vendor.name);
+  if (filament.material) parts.push(filament.material);
   if (filament.name) parts.push(filament.name);
-  else if (filament.material) parts.push(filament.material);
   if (spool.location) parts.push(`(${spool.location})`);
   return parts.join(" — ");
 }
