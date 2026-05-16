@@ -10,6 +10,68 @@
 
 ---
 
+## Progress Tracker
+
+- [ ] **Task 1: Add SwitchBot Client Helper**
+  - [ ] Step 1: Write failing tests for signing, device list, status parsing, and failures
+  - [ ] Step 2: Run tests to verify failure
+  - [ ] Step 3: Implement the helper
+  - [ ] Step 4: Run tests to verify pass
+  - [ ] Step 5: Commit
+- [ ] **Task 2: Add Settings, Database Fields, and Response Model**
+  - [ ] Step 1: Write failing data/model tests
+  - [ ] Step 2: Run targeted tests to verify failure
+  - [ ] Step 3: Implement settings and schema fields
+  - [ ] Step 4: Run tests
+  - [ ] Step 5: Commit
+- [ ] **Task 3: Add Sensor Refresh Data Helpers**
+  - [ ] Step 1: Write failing helper tests
+  - [ ] Step 2: Run tests to verify failure
+  - [ ] Step 3: Implement helpers
+  - [ ] Step 4: Run tests
+  - [ ] Step 5: Commit
+- [ ] **Task 4: Add SwitchBot Settings Reader and Refresh Service**
+  - [ ] Step 1: Write failing service tests
+  - [ ] Step 2: Run tests to verify failure
+  - [ ] Step 3: Implement service
+  - [ ] Step 4: Run tests
+  - [ ] Step 5: Commit
+- [ ] **Task 5: Add Sensor API Endpoints**
+  - [ ] Step 1: Write failing integration tests
+  - [ ] Step 2: Run tests to verify failure
+  - [ ] Step 3: Implement routes
+  - [ ] Step 4: Run tests
+  - [ ] Step 5: Commit
+- [ ] **Task 6: Add Frontend Types and Settings Fields**
+  - [ ] Step 1: Update TypeScript model
+  - [ ] Step 2: Add settings fields
+  - [ ] Step 3: Add English translations
+  - [ ] Step 4: Verify TypeScript
+  - [ ] Step 5: Commit
+- [ ] **Task 7: Add NFC Boxes Sensor Display and Refresh Action**
+  - [ ] Step 1: Add small format helpers in the page
+  - [ ] Step 2: Add refresh state and handler
+  - [ ] Step 3: Add table columns and edit/create fields
+  - [ ] Step 4: Add translations
+  - [ ] Step 5: Verify
+  - [ ] Step 6: Commit
+- [ ] **Task 8: Add Scan Page Sensor Status and On-Open Refresh**
+  - [ ] Step 1: Add sensor refresh state
+  - [ ] Step 2: Add token refresh helper
+  - [ ] Step 3: Render a reusable sensor status panel
+  - [ ] Step 4: Add translations
+  - [ ] Step 5: Verify
+  - [ ] Step 6: Commit
+- [ ] **Task 9: Full Verification**
+  - [ ] Step 1: Run backend unit tests
+  - [ ] Step 2: Run NFC integration tests
+  - [ ] Step 3: Run frontend build
+  - [ ] Step 4: Check worktree
+  - [ ] Step 5: Manual smoke test
+  - [ ] Step 6: Final commit if fixes were needed
+
+---
+
 ## Task 1: Add SwitchBot Client Helper
 
 **Files:**
