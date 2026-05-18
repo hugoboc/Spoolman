@@ -288,6 +288,17 @@ body {
   color: #1f2937;
 }
 
+.spoolman-filament-detail-modal .ant-modal-footer {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #e5eaf1;
+}
+
+.spoolman-filament-detail-modal .ant-modal-footer .ant-space {
+  justify-content: flex-end;
+  row-gap: 8px;
+}
+
 .spoolman-filament-detail {
   display: flex;
   flex-direction: column;

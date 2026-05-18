@@ -1,8 +1,22 @@
-import { InboxOutlined, PrinterOutlined, ToTopOutlined, ToolOutlined } from "@ant-design/icons";
+import {
+  BarcodeOutlined,
+  CalendarOutlined,
+  CommentOutlined,
+  DollarOutlined,
+  EnvironmentOutlined,
+  InboxOutlined,
+  LinkOutlined,
+  NumberOutlined,
+  PrinterOutlined,
+  TagsOutlined,
+  ToTopOutlined,
+  ToolOutlined,
+} from "@ant-design/icons";
 import { useInvalidate, useTranslate } from "@refinedev/core";
-import { Button, Descriptions, Modal, Space, Typography } from "antd";
+import { Button, Modal, Space } from "antd";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import type { ReactNode } from "react";
 import { useCallback, useMemo, useState } from "react";
 import SpoolIcon from "../../components/spoolIcon";
 import { NumberFieldUnit } from "../../components/numberField";
@@ -84,18 +98,43 @@ export function useSpoolShowModal() {
     const spoolPrice = curSpool.price ?? curSpool.filament.price;
     const filamentName = formatFilamentName(curSpool.filament);
     const filamentURL = `/filament/show/${curSpool.filament.id}`;
+    const missingValue = "-";
+    const registeredDate = dayjs.utc(curSpool.registered).local().format("YYYY-MM-DD HH:mm:ss");
 
-    const modalTitle = (
-      <Space align="center" size={12}>
-        {colorObj && <SpoolIcon color={colorObj} size="large" no_margin />}
-        <span>
-          {t("spool.titles.show_title", {
-            id: curSpool.id,
-            name: filamentName,
-            interpolation: { escapeValue: false },
-          })}
-        </span>
-      </Space>
+    const renderValue = (value: ReactNode) => {
+      if (value === undefined || value === null || value === "") {
+        return <span className="spoolman-filament-detail-empty">{missingValue}</span>;
+      }
+
+      return value;
+    };
+
+    const renderField = (
+      label: ReactNode,
+      value: ReactNode,
+      icon: ReactNode,
+      options: { wide?: boolean; key?: string } = {},
+    ) => (
+      <div
+        key={options.key}
+        className={[
+          "spoolman-filament-detail-field",
+          options.wide ? "spoolman-filament-detail-field-wide" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        <span className="spoolman-filament-detail-icon">{icon}</span>
+        <span className="spoolman-filament-detail-label">{label}</span>
+        <span className="spoolman-filament-detail-value">{renderValue(value)}</span>
+      </div>
+    );
+
+    const renderSection = (title: ReactNode, children: ReactNode) => (
+      <section className="spoolman-filament-detail-section">
+        {title && <h3 className="spoolman-filament-detail-section-title">{title}</h3>}
+        {children}
+      </section>
     );
 
     const hasExtraFields = extraFields.data && extraFields.data.length > 0;
@@ -105,9 +144,9 @@ export function useSpoolShowModal() {
         {spoolAdjustModal}
         <Modal
           open
-          title={modalTitle}
           onCancel={() => setCurSpool(null)}
-          width={700}
+          width={980}
+          className="spoolman-filament-detail-modal"
           footer={
             <Space wrap>
               <Button
@@ -142,113 +181,134 @@ export function useSpoolShowModal() {
             </Space>
           }
         >
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <Descriptions bordered size="small" column={2}>
-              <Descriptions.Item label={t("spool.fields.id")} span={1}>
-                {curSpool.id}
-              </Descriptions.Item>
-              <Descriptions.Item label={t("spool.fields.archived")} span={1}>
-                {curSpool.archived ? t("yes") : t("no")}
-              </Descriptions.Item>
-              <Descriptions.Item label={t("spool.fields.filament")} span={2}>
-                <a href={filamentURL}>{filamentName}</a>
-              </Descriptions.Item>
-              <Descriptions.Item label={t("spool.fields.price")} span={1}>
-                {spoolPrice !== undefined ? currencyFormatter.format(spoolPrice) : ""}
-              </Descriptions.Item>
-              <Descriptions.Item label={t("spool.fields.location")} span={1}>
-                {curSpool.location ?? ""}
-              </Descriptions.Item>
-              <Descriptions.Item label={t("spool.fields.lot_nr")} span={1}>
-                {curSpool.lot_nr ?? ""}
-              </Descriptions.Item>
-              <Descriptions.Item label={t("spool.fields.comment")} span={2}>
-                {enrichText(curSpool.comment)}
-              </Descriptions.Item>
-            </Descriptions>
+          <div className="spoolman-filament-detail">
+            <header className="spoolman-filament-detail-header">
+              <div className="spoolman-filament-detail-hero-swatch">
+                {colorObj && <SpoolIcon color={colorObj} size="large" no_margin />}
+              </div>
+              <div className="spoolman-filament-detail-heading">
+                <h2>{filamentName}</h2>
+              </div>
+              <div className="spoolman-filament-detail-registered">
+                <span>{t("spool.fields.registered")}</span>
+                <strong>
+                  {registeredDate}
+                  <CalendarOutlined aria-hidden="true" />
+                </strong>
+              </div>
+            </header>
 
-            <Descriptions
-              bordered
-              size="small"
-              column={2}
-              title={
-                <Typography.Text type="secondary" style={{ fontSize: 12, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                  {t("spool.titles.usage", { defaultValue: "Usage" })}
-                </Typography.Text>
-              }
-            >
-              <Descriptions.Item label={t("spool.fields.remaining_weight")} span={1}>
-                <NumberFieldUnit
-                  value={curSpool.remaining_weight ?? ""}
-                  unit="g"
-                  options={{ maximumFractionDigits: 1, minimumFractionDigits: 1 }}
-                />
-              </Descriptions.Item>
-              <Descriptions.Item label={t("spool.fields.used_weight")} span={1}>
-                <NumberFieldUnit
-                  value={curSpool.used_weight ?? ""}
-                  unit="g"
-                  options={{ maximumFractionDigits: 1, minimumFractionDigits: 1 }}
-                />
-              </Descriptions.Item>
-              <Descriptions.Item label={t("spool.fields.remaining_length")} span={1}>
-                <NumberFieldUnit
-                  value={curSpool.remaining_length ?? ""}
-                  unit="mm"
-                  options={{ maximumFractionDigits: 1, minimumFractionDigits: 1 }}
-                />
-              </Descriptions.Item>
-              <Descriptions.Item label={t("spool.fields.used_length")} span={1}>
-                <NumberFieldUnit
-                  value={curSpool.used_length ?? ""}
-                  unit="mm"
-                  options={{ maximumFractionDigits: 1, minimumFractionDigits: 1 }}
-                />
-              </Descriptions.Item>
-            </Descriptions>
+            {renderSection(
+              null,
+              <div className="spoolman-filament-detail-grid spoolman-filament-detail-grid-overview">
+                {renderField(t("spool.fields.id"), curSpool.id, <NumberOutlined />)}
+                {renderField(t("spool.fields.archived"), curSpool.archived ? t("yes") : t("no"), <InboxOutlined />)}
+                {renderField(t("spool.fields.filament"), <a href={filamentURL}>{filamentName}</a>, <LinkOutlined />)}
+                {renderField(
+                  t("spool.fields.price"),
+                  spoolPrice !== undefined ? currencyFormatter.format(spoolPrice) : missingValue,
+                  <DollarOutlined />,
+                )}
+                {renderField(t("spool.fields.location"), curSpool.location, <EnvironmentOutlined />)}
+                {renderField(t("spool.fields.lot_nr"), curSpool.lot_nr, <BarcodeOutlined />)}
+                {renderField(t("spool.fields.comment"), enrichText(curSpool.comment), <CommentOutlined />, {
+                  wide: true,
+                })}
+              </div>,
+            )}
 
-            <Descriptions
-              bordered
-              size="small"
-              column={2}
-              title={
-                <Typography.Text type="secondary" style={{ fontSize: 12, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                  {t("spool.titles.dates", { defaultValue: "Dates" })}
-                </Typography.Text>
-              }
-            >
-              <Descriptions.Item label={t("spool.fields.registered")} span={2}>
-                {dayjs.utc(curSpool.registered).local().format("YYYY-MM-DD HH:mm:ss")}
-              </Descriptions.Item>
-              {curSpool.first_used && (
-                <Descriptions.Item label={t("spool.fields.first_used")} span={1}>
-                  {dayjs.utc(curSpool.first_used).local().format("YYYY-MM-DD HH:mm:ss")}
-                </Descriptions.Item>
-              )}
-              {curSpool.last_used && (
-                <Descriptions.Item label={t("spool.fields.last_used")} span={1}>
-                  {dayjs.utc(curSpool.last_used).local().format("YYYY-MM-DD HH:mm:ss")}
-                </Descriptions.Item>
-              )}
-            </Descriptions>
+            {renderSection(
+              t("spool.titles.usage", { defaultValue: "Usage" }),
+              <div className="spoolman-filament-detail-grid">
+                {renderField(
+                  t("spool.fields.remaining_weight"),
+                  curSpool.remaining_weight != undefined ? (
+                    <NumberFieldUnit
+                      value={curSpool.remaining_weight}
+                      unit="g"
+                      options={{ maximumFractionDigits: 1, minimumFractionDigits: 1 }}
+                    />
+                  ) : (
+                    missingValue
+                  ),
+                  <InboxOutlined />,
+                )}
+                {renderField(
+                  t("spool.fields.used_weight"),
+                  curSpool.used_weight != undefined ? (
+                    <NumberFieldUnit
+                      value={curSpool.used_weight}
+                      unit="g"
+                      options={{ maximumFractionDigits: 1, minimumFractionDigits: 1 }}
+                    />
+                  ) : (
+                    missingValue
+                  ),
+                  <InboxOutlined />,
+                )}
+                {renderField(
+                  t("spool.fields.remaining_length"),
+                  curSpool.remaining_length != undefined ? (
+                    <NumberFieldUnit
+                      value={curSpool.remaining_length}
+                      unit="mm"
+                      options={{ maximumFractionDigits: 1, minimumFractionDigits: 1 }}
+                    />
+                  ) : (
+                    missingValue
+                  ),
+                  <NumberOutlined />,
+                )}
+                {renderField(
+                  t("spool.fields.used_length"),
+                  curSpool.used_length != undefined ? (
+                    <NumberFieldUnit
+                      value={curSpool.used_length}
+                      unit="mm"
+                      options={{ maximumFractionDigits: 1, minimumFractionDigits: 1 }}
+                    />
+                  ) : (
+                    missingValue
+                  ),
+                  <NumberOutlined />,
+                )}
+              </div>,
+            )}
+
+            {renderSection(
+              t("spool.titles.dates", { defaultValue: "Dates" }),
+              <div className="spoolman-filament-detail-grid">
+                {renderField(
+                  t("spool.fields.first_used"),
+                  curSpool.first_used
+                    ? dayjs.utc(curSpool.first_used).local().format("YYYY-MM-DD HH:mm:ss")
+                    : missingValue,
+                  <CalendarOutlined />,
+                )}
+                {renderField(
+                  t("spool.fields.last_used"),
+                  curSpool.last_used
+                    ? dayjs.utc(curSpool.last_used).local().format("YYYY-MM-DD HH:mm:ss")
+                    : missingValue,
+                  <CalendarOutlined />,
+                )}
+              </div>,
+            )}
 
             {hasExtraFields && (
-              <Descriptions
-                bordered
-                size="small"
-                column={1}
-                title={
-                  <Typography.Text type="secondary" style={{ fontSize: 12, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                    {t("settings.extra_fields.tab")}
-                  </Typography.Text>
-                }
-              >
-                {extraFields.data!.map((field) => (
-                  <Descriptions.Item key={field.key} label={field.name} span={1}>
-                    <ExtraFieldDisplay field={field} value={curSpool.extra[field.key]} />
-                  </Descriptions.Item>
-                ))}
-              </Descriptions>
+              <section className="spoolman-filament-detail-section">
+                <h3 className="spoolman-filament-detail-section-title">{t("settings.extra_fields.tab")}</h3>
+                <div className="spoolman-filament-detail-grid">
+                  {extraFields.data!.map((field) =>
+                    renderField(
+                      field.name,
+                      <ExtraFieldDisplay field={field} value={curSpool.extra[field.key]} />,
+                      <TagsOutlined />,
+                      { key: field.key, wide: true },
+                    ),
+                  )}
+                </div>
+              </section>
             )}
           </div>
         </Modal>
