@@ -81,6 +81,10 @@ body {
   font-size: 17px;
 }
 
+.ant-layout-sider-collapsed .ant-menu-inline-collapsed > .ant-menu-item {
+  padding-inline: calc(50% - 8.5px) !important;
+}
+
 .ant-layout-sider .ant-menu-item-selected {
   color: var(--ant-color-primary, #dc7734) !important;
   background: color-mix(in srgb, var(--ant-color-primary, #dc7734) 12%, transparent) !important;
