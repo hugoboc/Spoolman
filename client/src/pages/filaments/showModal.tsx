@@ -1,7 +1,23 @@
-import { useInvalidate, useTranslate } from "@refinedev/core";
-import { Descriptions, Modal, Space, Typography } from "antd";
+import {
+  BarcodeOutlined,
+  BgColorsOutlined,
+  CalendarOutlined,
+  ColumnWidthOutlined,
+  CommentOutlined,
+  DollarOutlined,
+  FireOutlined,
+  NumberOutlined,
+  TagsOutlined,
+  TrademarkCircleOutlined,
+  ApartmentOutlined,
+  DatabaseOutlined,
+  InboxOutlined,
+} from "@ant-design/icons";
+import { useTranslate } from "@refinedev/core";
+import { Modal } from "antd";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import type { ReactNode } from "react";
 import { useCallback, useMemo, useState } from "react";
 import { ExtraFieldDisplay } from "../../components/extraFields";
 import { NumberFieldUnit } from "../../components/numberField";
@@ -34,156 +50,210 @@ export function useFilamentShowModal() {
         }
       : curFilament.color_hex;
 
+    const missingValue = "-";
     const vendorName = curFilament.vendor?.name;
     const vendorId = curFilament.vendor?.id;
     const displayName = curFilament.name ?? `ID: ${curFilament.id}`;
     const titleName = vendorName ? `${vendorName} - ${displayName}` : displayName;
+    const registeredDate = dayjs.utc(curFilament.registered).local().format("YYYY-MM-DD HH:mm:ss");
 
-    const modalTitle = (
-      <Space align="center" size={12}>
-        {colorObj && <SpoolIcon color={colorObj} size="large" no_margin />}
-        <span>
-          {t("filament.titles.show_title", {
-            id: curFilament.id,
-            name: titleName,
-            interpolation: { escapeValue: false },
-          })}
-        </span>
-      </Space>
+    const renderValue = (value: ReactNode) => {
+      if (value === undefined || value === null || value === "") {
+        return <span className="spoolman-filament-detail-empty">{missingValue}</span>;
+      }
+
+      return value;
+    };
+
+    const renderField = (
+      label: ReactNode,
+      value: ReactNode,
+      icon: ReactNode,
+      options: { wide?: boolean; plain?: boolean; key?: string } = {},
+    ) => (
+      <div
+        key={options.key}
+        className={[
+          "spoolman-filament-detail-field",
+          options.wide ? "spoolman-filament-detail-field-wide" : "",
+          options.plain ? "spoolman-filament-detail-field-plain" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        {!options.plain && <span className="spoolman-filament-detail-icon">{icon}</span>}
+        <span className="spoolman-filament-detail-label">{label}</span>
+        <span className="spoolman-filament-detail-value">{renderValue(value)}</span>
+      </div>
+    );
+
+    const renderSection = (title: ReactNode, children: ReactNode, className = "") => (
+      <section className={["spoolman-filament-detail-section", className].filter(Boolean).join(" ")}>
+        {title && <h3 className="spoolman-filament-detail-section-title">{title}</h3>}
+        {children}
+      </section>
+    );
+
+    const colorValue = colorObj ? (
+      <span className="spoolman-filament-detail-color-value">
+        <SpoolIcon color={colorObj} no_margin />
+        {curFilament.color_hex ? <span>#{curFilament.color_hex}</span> : null}
+      </span>
+    ) : (
+      missingValue
     );
 
     const hasExtraFields = extraFields.data && extraFields.data.length > 0;
 
-    const sectionLabel = (text: string) => (
-      <Typography.Text
-        type="secondary"
-        style={{ fontSize: 12, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}
-      >
-        {text}
-      </Typography.Text>
-    );
-
     return (
       <Modal
         open
-        title={modalTitle}
         onCancel={() => setCurFilament(null)}
-        width={700}
+        width={980}
         footer={null}
+        className="spoolman-filament-detail-modal"
       >
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <Descriptions bordered size="small" column={2}>
-            <Descriptions.Item label={t("filament.fields.id")} span={1}>
-              {curFilament.id}
-            </Descriptions.Item>
-            <Descriptions.Item label={t("filament.fields.registered")} span={1}>
-              {dayjs.utc(curFilament.registered).local().format("YYYY-MM-DD HH:mm:ss")}
-            </Descriptions.Item>
-            <Descriptions.Item label={t("filament.fields.vendor")} span={1}>
-              {vendorId ? <a href={`/vendor/show/${vendorId}`}>{vendorName}</a> : (vendorName ?? "")}
-            </Descriptions.Item>
-            <Descriptions.Item label={t("filament.fields.name")} span={1}>
-              {curFilament.name ?? ""}
-            </Descriptions.Item>
-            <Descriptions.Item label={t("filament.fields.material")} span={1}>
-              {curFilament.material ?? ""}
-            </Descriptions.Item>
-            <Descriptions.Item label={t("filament.fields.price")} span={1}>
-              {curFilament.price !== undefined ? currencyFormatter.format(curFilament.price) : ""}
-            </Descriptions.Item>
-            {colorObj && (
-              <Descriptions.Item label={t("filament.fields.color_hex")} span={2}>
-                <Space>
-                  <SpoolIcon color={colorObj} />
-                  {curFilament.color_hex && <span>#{curFilament.color_hex}</span>}
-                </Space>
-              </Descriptions.Item>
-            )}
-            <Descriptions.Item label={t("filament.fields.comment")} span={2}>
-              {enrichText(curFilament.comment)}
-            </Descriptions.Item>
-          </Descriptions>
+        <div className="spoolman-filament-detail">
+          <header className="spoolman-filament-detail-header">
+            <div className="spoolman-filament-detail-hero-swatch">
+              {colorObj ? <SpoolIcon color={colorObj} size="large" no_margin /> : null}
+            </div>
+            <div className="spoolman-filament-detail-heading">
+              <span className="spoolman-filament-detail-pill">FILAMENT #{curFilament.id}</span>
+              <h2>{titleName}</h2>
+            </div>
+            <div className="spoolman-filament-detail-registered">
+              <span>{t("filament.fields.registered")}</span>
+              <strong>
+                {registeredDate}
+                <CalendarOutlined aria-hidden="true" />
+              </strong>
+            </div>
+          </header>
 
-          <Descriptions
-            bordered
-            size="small"
-            column={2}
-            title={sectionLabel(t("filament.titles.physical_properties", { defaultValue: "Physical Properties" }))}
-          >
-            <Descriptions.Item label={t("filament.fields.density")} span={1}>
-              <NumberFieldUnit
-                value={curFilament.density}
-                unit="g/cm³"
-                options={{ maximumFractionDigits: 2, minimumFractionDigits: 2 }}
-              />
-            </Descriptions.Item>
-            <Descriptions.Item label={t("filament.fields.diameter")} span={1}>
-              <NumberFieldUnit
-                value={curFilament.diameter}
-                unit="mm"
-                options={{ maximumFractionDigits: 2, minimumFractionDigits: 2 }}
-              />
-            </Descriptions.Item>
-            <Descriptions.Item label={t("filament.fields.weight")} span={1}>
-              <NumberFieldUnit
-                value={curFilament.weight ?? ""}
-                unit="g"
-                options={{ maximumFractionDigits: 1, minimumFractionDigits: 1 }}
-              />
-            </Descriptions.Item>
-            <Descriptions.Item label={t("filament.fields.spool_weight")} span={1}>
-              <NumberFieldUnit
-                value={curFilament.spool_weight ?? ""}
-                unit="g"
-                options={{ maximumFractionDigits: 1, minimumFractionDigits: 1 }}
-              />
-            </Descriptions.Item>
-          </Descriptions>
-
-          <Descriptions
-            bordered
-            size="small"
-            column={2}
-            title={sectionLabel(t("filament.titles.print_settings", { defaultValue: "Print Settings" }))}
-          >
-            <Descriptions.Item label={t("filament.fields.settings_extruder_temp")} span={1}>
-              {curFilament.settings_extruder_temp !== undefined ? (
-                <NumberFieldUnit value={curFilament.settings_extruder_temp} unit="°C" />
-              ) : (
-                t("not_set", { defaultValue: "Not Set" })
+          {renderSection(
+            null,
+            <div className="spoolman-filament-detail-grid">
+              {renderField(t("filament.fields.id"), curFilament.id, <ApartmentOutlined />)}
+              {renderField(t("filament.fields.name"), curFilament.name, <TagsOutlined />)}
+              {renderField(
+                t("filament.fields.vendor"),
+                vendorId ? <a href={`/vendor/show/${vendorId}`}>{vendorName}</a> : vendorName,
+                <TrademarkCircleOutlined />,
               )}
-            </Descriptions.Item>
-            <Descriptions.Item label={t("filament.fields.settings_bed_temp")} span={1}>
-              {curFilament.settings_bed_temp !== undefined ? (
-                <NumberFieldUnit value={curFilament.settings_bed_temp} unit="°C" />
-              ) : (
-                t("not_set", { defaultValue: "Not Set" })
+              {renderField(
+                t("filament.fields.price"),
+                curFilament.price !== undefined ? currencyFormatter.format(curFilament.price) : missingValue,
+                <DollarOutlined />,
               )}
-            </Descriptions.Item>
-          </Descriptions>
+              {renderField(t("filament.fields.material"), curFilament.material, <DatabaseOutlined />, { wide: true })}
+              {renderField(t("filament.fields.color_hex"), colorValue, <BgColorsOutlined />, { wide: true })}
+              {renderField(t("filament.fields.comment"), enrichText(curFilament.comment), <CommentOutlined />, {
+                wide: true,
+              })}
+            </div>,
+          )}
 
-          <Descriptions bordered size="small" column={2}>
-            <Descriptions.Item label={t("filament.fields.article_number")} span={1}>
-              {curFilament.article_number ?? ""}
-            </Descriptions.Item>
-            <Descriptions.Item label={t("filament.fields.external_id")} span={1}>
-              {curFilament.external_id ?? ""}
-            </Descriptions.Item>
-          </Descriptions>
+          {renderSection(
+            t("filament.titles.physical_properties", { defaultValue: "Physical Properties" }),
+            <div className="spoolman-filament-detail-grid">
+              {renderField(
+                t("filament.fields.density"),
+                <NumberFieldUnit
+                  value={curFilament.density}
+                  unit="g/cm³"
+                  options={{ maximumFractionDigits: 2, minimumFractionDigits: 2 }}
+                />,
+                <ColumnWidthOutlined />,
+              )}
+              {renderField(
+                t("filament.fields.diameter"),
+                <NumberFieldUnit
+                  value={curFilament.diameter}
+                  unit="mm"
+                  options={{ maximumFractionDigits: 2, minimumFractionDigits: 2 }}
+                />,
+                <NumberOutlined />,
+              )}
+              {renderField(
+                t("filament.fields.weight"),
+                curFilament.weight !== undefined ? (
+                  <NumberFieldUnit
+                    value={curFilament.weight}
+                    unit="g"
+                    options={{ maximumFractionDigits: 1, minimumFractionDigits: 1 }}
+                  />
+                ) : (
+                  missingValue
+                ),
+                <InboxOutlined />,
+              )}
+              {renderField(
+                t("filament.fields.spool_weight"),
+                curFilament.spool_weight !== undefined ? (
+                  <NumberFieldUnit
+                    value={curFilament.spool_weight}
+                    unit="g"
+                    options={{ maximumFractionDigits: 1, minimumFractionDigits: 1 }}
+                  />
+                ) : (
+                  missingValue
+                ),
+                <DatabaseOutlined />,
+              )}
+            </div>,
+          )}
+
+          {renderSection(
+            t("filament.titles.print_settings", { defaultValue: "Print Settings" }),
+            <div className="spoolman-filament-detail-grid">
+              {renderField(
+                t("filament.fields.settings_extruder_temp"),
+                curFilament.settings_extruder_temp !== undefined ? (
+                  <NumberFieldUnit value={curFilament.settings_extruder_temp} unit="°C" />
+                ) : (
+                  missingValue
+                ),
+                <FireOutlined />,
+              )}
+              {renderField(
+                t("filament.fields.settings_bed_temp"),
+                curFilament.settings_bed_temp !== undefined ? (
+                  <NumberFieldUnit value={curFilament.settings_bed_temp} unit="°C" />
+                ) : (
+                  missingValue
+                ),
+                <FireOutlined />,
+              )}
+            </div>,
+          )}
+
+          {renderSection(
+            null,
+            <div className="spoolman-filament-detail-grid spoolman-filament-detail-grid-plain">
+              {renderField(t("filament.fields.article_number"), curFilament.article_number, <BarcodeOutlined />, {
+                plain: true,
+              })}
+              {renderField(t("filament.fields.external_id"), curFilament.external_id, <BarcodeOutlined />, {
+                plain: true,
+              })}
+            </div>,
+          )}
 
           {hasExtraFields && (
-            <Descriptions
-              bordered
-              size="small"
-              column={1}
-              title={sectionLabel(t("settings.extra_fields.tab"))}
-            >
-              {extraFields.data!.map((field) => (
-                <Descriptions.Item key={field.key} label={field.name} span={1}>
-                  <ExtraFieldDisplay field={field} value={curFilament.extra[field.key]} />
-                </Descriptions.Item>
-              ))}
-            </Descriptions>
+            <section className="spoolman-filament-detail-section">
+              <h3 className="spoolman-filament-detail-section-title">{t("settings.extra_fields.tab")}</h3>
+              <div className="spoolman-filament-detail-grid">
+                {extraFields.data!.map((field) =>
+                  renderField(
+                    field.name,
+                    <ExtraFieldDisplay field={field} value={curFilament.extra[field.key]} />,
+                    <TagsOutlined />,
+                    { key: field.key, wide: true },
+                  ),
+                )}
+              </div>
+            </section>
           )}
         </div>
       </Modal>
