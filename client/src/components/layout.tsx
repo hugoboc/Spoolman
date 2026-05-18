@@ -11,16 +11,8 @@ const SpoolmanFooter = () => {
   const t = useTranslate();
 
   return (
-    <Footer style={{ textAlign: "center" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexDirection: "row",
-          gap: "2em",
-        }}
-      >
+    <Footer className="spoolman-footer">
+      <div className="spoolman-footer-inner">
         <div>
           {t("version")} <Version />
         </div>
@@ -57,6 +49,6 @@ export const SpoolmanLayout = ({ children }: { children: React.ReactNode }) => (
     )}
     Footer={() => <SpoolmanFooter />}
   >
-    {children}
+    <main className="spoolman-content-shell">{children}</main>
   </ThemedLayout>
 );

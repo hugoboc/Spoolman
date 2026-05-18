@@ -1,7 +1,7 @@
-import { DownOutlined } from "@ant-design/icons";
+import { DownOutlined, MoonOutlined, SunOutlined } from "@ant-design/icons";
 import type { RefineThemedLayoutHeaderProps } from "@refinedev/antd";
 import { useGetLocale, useSetLocale } from "@refinedev/core";
-import { Layout as AntdLayout, Button, Dropdown, MenuProps, Space, Switch, theme } from "antd";
+import { Layout as AntdLayout, Button, Dropdown, MenuProps, Space, theme } from "antd";
 import React, { useContext } from "react";
 import { ColorModeContext } from "../../contexts/color-mode";
 
@@ -40,26 +40,28 @@ export const Header = ({ sticky }: RefineThemedLayoutHeaderProps) => {
   }
 
   return (
-    <AntdLayout.Header style={headerStyles}>
-      <Space>
+    <AntdLayout.Header className="spoolman-header" style={headerStyles}>
+      <Space size={12} className="spoolman-header-controls">
         <Dropdown
           menu={{
             items: menuItems,
             selectedKeys: currentLocale ? [currentLocale] : [],
           }}
         >
-          <Button type="text">
+          <Button type="text" className="spoolman-language-button">
             <Space>
               {languages[currentLocale ?? "en"].name}
               <DownOutlined />
             </Space>
           </Button>
         </Dropdown>
-        <Switch
-          checkedChildren="🌛"
-          unCheckedChildren="🔆"
-          onChange={() => setMode(mode === "light" ? "dark" : "light")}
-          defaultChecked={mode === "dark"}
+        <Button
+          shape="circle"
+          className="spoolman-theme-button"
+          icon={mode === "light" ? <SunOutlined /> : <MoonOutlined />}
+          title={mode === "light" ? "Switch to dark mode" : "Switch to light mode"}
+          aria-label={mode === "light" ? "Switch to dark mode" : "Switch to light mode"}
+          onClick={() => setMode(mode === "light" ? "dark" : "light")}
         />
         <QRCodeScannerModal />
       </Space>

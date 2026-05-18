@@ -1,6 +1,6 @@
 import { DateField, TextField } from "@refinedev/antd";
 import { UseQueryResult } from "@tanstack/react-query";
-import { Button, Col, Dropdown, Row, Space, Spin } from "antd";
+import { Button, Col, Dropdown, Row, Space, Spin, Tooltip } from "antd";
 import { ColumnFilterItem, ColumnType } from "antd/es/table/interface";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -274,28 +274,38 @@ export function ActionsColumn<Obj extends Entity>(
   return {
     title,
     responsive: ["lg"],
+    className: "spoolman-actions-column",
     render: (_, record) => {
       const buttons = actionsFn(record).map((action) => {
         if (action.link) {
           return (
             <Link key={action.name} to={action.link}>
-              <Button icon={action.icon} title={action.name} size="small" />
+              <Tooltip title={action.name}>
+                <Button
+                  className="spoolman-action-button"
+                  icon={action.icon}
+                  title={action.name}
+                  size="small"
+                />
+              </Tooltip>
             </Link>
           );
         } else if (action.onClick) {
           return (
-            <Button
-              key={action.name}
-              icon={action.icon}
-              title={action.name}
-              size="small"
-              onClick={() => action.onClick!()}
-            />
+            <Tooltip key={action.name} title={action.name}>
+              <Button
+                className="spoolman-action-button"
+                icon={action.icon}
+                title={action.name}
+                size="small"
+                onClick={() => action.onClick!()}
+              />
+            </Tooltip>
           );
         }
       });
 
-      return <Space>{buttons}</Space>;
+      return <Space size={8}>{buttons}</Space>;
     },
   };
 }
@@ -350,13 +360,15 @@ export function SpoolIconColumn<Obj extends Entity>(props: SpoolIconColumnProps<
       const value = props.transform ? props.transform(rawValue) : rawValue;
       const colorObj = props.color(record);
       return (
-        <Row wrap={false} justify="space-around" align="middle">
+        <Row className="spoolman-swatch-cell" wrap={false} align="middle">
           {colorObj && (
             <Col flex="none">
               <SpoolIcon color={colorObj} />
             </Col>
           )}
-          <Col flex="auto">{value}</Col>
+          <Col className="spoolman-swatch-cell-label" flex="auto">
+            {value}
+          </Col>
         </Row>
       );
     },
