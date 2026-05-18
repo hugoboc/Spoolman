@@ -119,7 +119,6 @@ export function useFilamentShowModal() {
               {colorObj ? <SpoolIcon color={colorObj} size="large" no_margin /> : null}
             </div>
             <div className="spoolman-filament-detail-heading">
-              <span className="spoolman-filament-detail-pill">FILAMENT #{curFilament.id}</span>
               <h2>{titleName}</h2>
             </div>
             <div className="spoolman-filament-detail-registered">
@@ -133,7 +132,7 @@ export function useFilamentShowModal() {
 
           {renderSection(
             null,
-            <div className="spoolman-filament-detail-grid">
+            <div className="spoolman-filament-detail-grid spoolman-filament-detail-grid-overview">
               {renderField(t("filament.fields.id"), curFilament.id, <ApartmentOutlined />)}
               {renderField(t("filament.fields.name"), curFilament.name, <TagsOutlined />)}
               {renderField(
@@ -146,8 +145,8 @@ export function useFilamentShowModal() {
                 curFilament.price !== undefined ? currencyFormatter.format(curFilament.price) : missingValue,
                 <DollarOutlined />,
               )}
-              {renderField(t("filament.fields.material"), curFilament.material, <DatabaseOutlined />, { wide: true })}
-              {renderField(t("filament.fields.color_hex"), colorValue, <BgColorsOutlined />, { wide: true })}
+              {renderField(t("filament.fields.material"), curFilament.material, <DatabaseOutlined />)}
+              {renderField(t("filament.fields.color_hex"), colorValue, <BgColorsOutlined />)}
               {renderField(t("filament.fields.comment"), enrichText(curFilament.comment), <CommentOutlined />, {
                 wide: true,
               })}
